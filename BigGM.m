@@ -14,21 +14,21 @@ switch nargin
         numdim = 6; % A silly default
         numclust = 6; % Equally silly default
         embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
-        clustAlg = @kmeans0; % Use kmeans
+        clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite 
     case 4
         warning(['Number of clusters '...
             'not supplied; default value is 6. This is silly.'])
         numclust = 6; % Equally silly default
         embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
-        clustAlg = @kmeans0; % Use kmeans
+        clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
     case 5
         embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
-        clustAlg = @kmean0; % Use kmeans
+        clustAlg = @kmeanAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
     case 6
-        clustAlg = @kmeans0; % Use kmeans
+        clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
     case 7
         graphMatchAlg = @seedgraphmatchell2; % Our favorite

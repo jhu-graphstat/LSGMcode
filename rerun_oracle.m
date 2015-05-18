@@ -28,7 +28,7 @@ parfor r = 1:num_runs
 	% run lsgm
 	rng(r);
 	gmAlg = @(A,B,s) graphmAlg(A,B,s,'rand');
-	[match clust_labels] = BigGMr( AA,BB,m, numdim, max_clust, @spectralEmbedElbow, @kmeansAlgr, gmAlg);
+	[match clust_labels] = BigGMr( AA,BB,m, numdim, max_clust, @spectralEmbedElbow, @kmeansAlg, gmAlg);
 	acc(ex,r) = mean(clust_labels(nonseeds,1)==clust_labels(nonseeds,2));
 	
 %  acc(:,r) = acc_;

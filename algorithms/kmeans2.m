@@ -1,4 +1,4 @@
-function [L,C] = kmeans(X,k)
+function [L,C] = kmeans2(X,k)
 %KMEANS Cluster multivariate data using the k-means++ algorithm.
 %   [L,C] = kmeans(X,k) produces a 1-by-size(X,2) vector L with one class
 %   label per column in X and a size(X,1)-by-k matrix C containing the
