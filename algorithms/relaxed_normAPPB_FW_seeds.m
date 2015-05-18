@@ -1,6 +1,6 @@
-function [P,Pp]=relaxed_normAPPB_FW_seeds(A,B,seeds)
+function [P,Pp]=relaxed_normAPPB_FW_seeds(A,B,seeds,varargin)
 
-verbose = 1;
+verbose = 0;
 
 AtA = A'*A;
 BBt = B*B';
@@ -15,20 +15,29 @@ tol2=1e-5;
 P=ones(p)/(p-seeds);
 P(1:seeds,1:seeds)=eye(seeds);
 
+ if ~isempty(varargin)
+     if (size(varargin{1},1) > 1)
+        P=varargin{1}; 
+     else
+        tol2=varargin{1};    
+     end
+     
+ end
+
 f=f1(P);
 var=1;
 
-while ~(abs(f)<tol) && (var > tol2)
+while (f>tol) && (var > tol2)
     fold=f;
 
-    grad = (AtA*P -A'*P*B - A*P*B' + P*BBt);
+    grad = AtA*P -A'*P*B - A*P*B' + P*BBt;
     
     grad(1:seeds,:)=0;
     grad(:,1:seeds)=0;
     
-    corr=lapjv(grad(seeds+1:end,seeds+1:end),0.01);  Ps=perm2mat(corr);
+    corr=lapjv(grad(seeds+1:end,seeds+1:end),0.01);
+    Ps=perm2mat(corr);
 
-    %Ps=hungarian_mex(grad(seeds+1:end,seeds+1:end)*1e3);
     Ps =Ps';
     
     Ps1=eye(p);

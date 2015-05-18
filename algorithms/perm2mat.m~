@@ -1,3 +1,0 @@
-function M = perm2mat(perm)
-
-
