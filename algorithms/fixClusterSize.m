@@ -1,5 +1,7 @@
-function [pieceA_,pieceB_,gA_,gB_] = fixClusterSize(IDX, Dis, numclust,nonseedsA, nonseedsB)
+function [pieceA_,pieceB_,gA_,gB_] = fixClusterSize(A,B,IDX, Dis, numclust,nonseedsA, nonseedsB)
 
+sumn = length(nonseedsA);
+s = length(A)-sumn;
 
 % fixing cluster sizes to be equal in both graphs
 IDXA = IDX(nonseedsA);

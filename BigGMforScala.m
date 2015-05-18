@@ -38,7 +38,7 @@ fprintf( 'done clustering: %f\n', toc(startt) );
 
 %% fix cluster sizes to be equal in both graphs
 
-[pieceA_,pieceB_,gA_,gB_] = fixClusterSize(IDX, Dis, numclust,nonseedsA, nonseedsB)
+[pieceA_,pieceB_,gA_,gB_] = fixClusterSize(A,B,IDX, Dis, numclust,nonseedsA, nonseedsB);
 clear IDX Dis
 
 %% perform graph matching in parallel
