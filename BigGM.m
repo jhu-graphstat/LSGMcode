@@ -6,6 +6,7 @@ function [ match, clust_labels ] = BigGM( A, B, s, numdim, numclust, embedAlg, c
 % (1) each graph is embedded into Euclidean space,
 % (2) the embeddings are aligned using the seed vertices,
 % (3) the points/vertices are clustered 
+% (4) in parallel, match subgraphs corresponding to each cluster
 
 switch nargin
     case 3
@@ -65,6 +66,8 @@ clear IDX Dis
 
 %% perform graph matching in parallel
 match = zeros(s+sumn,numclust);
+
+
 parfor i = 1:numclust
 	% load subgraph adjacency matrix
 	gA = gA_{i};

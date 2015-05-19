@@ -1,23 +1,60 @@
 function [ match, clust_labels ] = BigGMr( A, B, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg)
+% BigGM Large Seeded Graph Matching function
+% [ match, clust_labels ]  = BigGM( A, B, s, numdim, numclust, embedAlg, clustAlg, graphMatchAlg)
+% A generic function to perform graph matching on large graphs via a
+% divided and conquer strategy. The steps of the procedure are as follows:
+% (1) each graph is embedded into Euclidean space,
+% (2) the embeddings are aligned using the seed vertices,
+% (3) the points/vertices are clustered 
+% (4) in parallel, match subgraphs corresponding to each cluster
+%       if the cluster size is to big the algorithm recurses to 
+%       step 1 on the subgraphs
+
+switch nargin
+    case 3
+        warning(['Embedding dimension dimension and number of clusters '...
+            'not supplied; both set to a value of 6. This is silly.'])
+        numdim = 6; % A silly default
+        numclust = 6; % Equally silly default
+        embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
+        clustAlg = @kmeansAlg; % Use kmeans
+        graphMatchAlg = @seedgraphmatchell2; % Our favorite 
+    case 4
+        warning(['Number of clusters '...
+            'not supplied; default value is 6. This is silly.'])
+        numclust = 6; % Equally silly default
+        embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
+        clustAlg = @kmeansAlg; % Use kmeans
+        graphMatchAlg = @seedgraphmatchell2; % Our favorite
+    case 5
+        embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
+        clustAlg = @kmeanAlg; % Use kmeans
+        graphMatchAlg = @seedgraphmatchell2; % Our favorite
+    case 6
+        clustAlg = @kmeansAlg; % Use kmeans
+        graphMatchAlg = @seedgraphmatchell2; % Our favorite
+    case 7
+        graphMatchAlg = @seedgraphmatchell2; % Our favorite
+end
 
 start = tic;
 sumn = length(A)-s;
-numclust = ceil(sumn/max_clust_size);
 
+% number of clusters determined by max cluster size
+numclust = ceil(sumn/max_clust_size);
 % maxmium number of seeds to use
 s_max = min(200,s);
-
 % show output
 show_output = false;
 
-% perform embedding
+%% perform embedding
 startt = tic;
 [XA XB] = embedAlg(A, B, numdim);
 if show_output
 	fprintf( 'done projection: %f\n', toc(startt) );
 end
 
-% compute procrusties othogonal projection (on the seed vertices)
+%% compute procrusties othogonal projection (on the seed vertices)
 startt = tic;
 [~,~,TRANSFORM]=procrustes(XA(1:s,:),XB(1:s,:));
 TRANSFORM.c=ones(sumn+s,1)*TRANSFORM.c(1,:);
@@ -26,15 +63,13 @@ if show_output
 	fprintf( 'done procrusties: %f\n', toc(startt) );
 end
 
-% cluster using the embedding
+%% cluster using the embedding
 startt = tic;
 XAXB=[XA;XB];
-seedsA = 1:s;
-seedsB = s+sumn+1:2*s+sumn;
 nonseedsA = s+1:s+sumn;
 nonseedsB = s+sumn+ s+1:2*(s+sumn);
 nonseeds = [nonseedsA, nonseedsB];
-[IDX, centroid, Dis] = clustAlg(XAXB, numclust, nonseeds);
+[IDX, centroid, Dis] = clustAlg(XAXB, numclust);
 if show_output
 	fprintf( 'done clustering: %f\n', toc(startt) );
 end
@@ -46,6 +81,8 @@ clear IDX Dis
 %% perform graph matching in parallel
 match = zeros(s+sumn,numclust);
 clust_labels_ = zeros(s+sumn,2,numclust);
+
+% Need a for loop here because of recursion, :(
 for i = 1:numclust
 	
 	ii = [1,1];
@@ -71,7 +108,7 @@ for i = 1:numclust
 	    
 		ord = ord(s+1:end) -s;
 		time_r = toc(startr);
-		fprintf("recursion time: %f\n", time_r);
+		fprintf('recursion time: %f\n', time_r);
 	else
 %		'cluster'
 
