@@ -1,13 +1,15 @@
-function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,convexStart)% ,alpha_type )
+function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,start)% ,alpha_type )
 % Returns matching for the SGM problem using the SGM algorithm
 % 
-% [corr,corr_c] = seedgraphmatchell2(A,B,m,convexStar)
+% [corr,corr_c] = seedgraphmatchell2(A,B,m,start)
 % 
 % corr_c is the matching using only seed to nonseed data
 % corr is the best matching using all data
 %
 % A,B are (s+n)x(s+n) adjacency matrices, 
 % loops/multiedges/directededges allowed.
+% s is the number of seeds
+% start is the initialization parameter
 % It is assumed that the first s vertices of A's graph
 % correspond respectively to the first m vertices of B's graph,
 % corr gives the vertex correspondences  
@@ -20,8 +22,8 @@ function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,convexStart)% ,alpha_type )
 % (Extends Vogelstein, Conroy et al method for nonseed graphmatch to seed)
 
 if nargin < 4
-    warning('convexStart not set, default is true');
-    convexStart = true;
+    warning('Input variable start not set, default is "convex"');
+    start = 'convex';
 end
 
 
@@ -41,18 +43,25 @@ B21=B(s+1:s+n,1:s);
 B22=B(s+1:s+n,s+1:s+n);
 
 %% Get the initial start
-if( ~convexStart )
+if( strcmp(start,'bari' )
     % Use the baricenter
 	P = ones(n)/n;
-else
+elseif( strcmp(start,'convex'))
+    fprintf('Start Conv Relax\n')
     % use the start from the convex relaxation
 	[~,P]=relaxed_normAPPB_FW_seeds(A22,B22,s);
+    fprintf('Done Conv Relax\n')
+else
+    P = start;
 end
 
 %% Matching just using seed to non-seed information
-corr_c = lapjv(-(A21*B21'+A12'*B12), scale );%YiCaoHungarian( -(A21*B21'+A12'*B12) );%
-corr_c=[ 1:s,  s+corr_c];
-
+if s > 0
+    corr_c = lapjv(-(A21*B21'+A12'*B12), scale );%YiCaoHungarian( -(A21*B21'+A12'*B12) );%
+    corr_c=[ 1:s,  s+corr_c];
+else
+    corr_c = NaN;
+end
 
 %% The main algorithm
 toggle=1;
