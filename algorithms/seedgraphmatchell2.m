@@ -43,7 +43,7 @@ B21=B(s+1:s+n,1:s);
 B22=B(s+1:s+n,s+1:s+n);
 
 %% Get the initial start
-if( strcmp(start,'bari' )
+if( strcmp(start,'bari' ))
     % Use the baricenter
 	P = ones(n)/n;
 elseif( strcmp(start,'convex'))
