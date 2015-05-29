@@ -1,6 +1,6 @@
-function [ match, clust_labels ] = BigGMr( A, B, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg)
+function [ match, clust_labels ] = BigGMr( A, B, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg, topK)
 % BigGM Large Seeded Graph Matching function
-% [ match, clust_labels ]  = BigGM( A, B, s, numdim, numclust, embedAlg, clustAlg, graphMatchAlg)
+% [ match, clust_labels ] = BigGMr( A, B, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg, topK)
 % A generic function to perform graph matching on large graphs via a
 % divided and conquer strategy. The steps of the procedure are as follows:
 % (1) each graph is embedded into Euclidean space,
@@ -9,6 +9,21 @@ function [ match, clust_labels ] = BigGMr( A, B, s, numdim, max_clust_size, embe
 % (4) in parallel, match subgraphs corresponding to each cluster
 %       if the cluster size is to big the algorithm recurses to 
 %       step 1 on the subgraphs
+%
+% INPUTS:          A, B : adjacency matrices for each graph
+%                     s : number of seeds
+%                numdim : dimension to be used in the embedding algoritm
+%        max_clust_size : maximum number of points in each cluster allowed
+%                         when clustering the embedded points. This is 
+%                         used to calculate the number of clusters used.
+%              embedAlg : algorithm used to embed the adjacency matrices
+%              clustAlg : algorithm used to cluster the embedded adjacency
+%                         matrices
+%         graphMatchAlg : algorithm used to match vertices from each graph
+%                         in a cluster
+%                  topK : boolean value set to TRUE when a list of matches
+%                         is desired
+
 
 switch nargin
     case 3
@@ -19,6 +34,7 @@ switch nargin
         embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
         clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite 
+        topK = false;
     case 4
         warning(['Number of clusters '...
             'not supplied; default value is 6. This is silly.'])
@@ -26,16 +42,24 @@ switch nargin
         embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
         clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
+        topK = false;
     case 5
         embedAlg = @spectralEmbed; % Use the adjacency spectral embedding
-        clustAlg = @kmeanAlg; % Use kmeans
+        clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
+        topK = false;
     case 6
         clustAlg = @kmeansAlg; % Use kmeans
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
+        topK = false;
     case 7
         graphMatchAlg = @seedgraphmatchell2; % Our favorite
+        topK = false;
+    case 8
+        topK = false;
 end
+
+addpath algorithms/
 
 start = tic;
 sumn = length(A)-s;
@@ -109,6 +133,8 @@ for i = 1:numclust
 		ord = ord(s+1:end) -s;
 		time_r = toc(startr);
 		fprintf('recursion time: %f\n', time_r);
+        % rmpath at the end of BigGMr removes the path globally: we need to add it again
+        addpath algorithms/ 
 	else
 %		'cluster'
 
@@ -196,6 +222,8 @@ if show_output
 	fprintf( 'done matching: %f\n', toc(startt)-time_r );
 	fprintf( 'total time: %f\n', toc(start) );
 end
+
+rmpath algorithms/
 
 end
 
