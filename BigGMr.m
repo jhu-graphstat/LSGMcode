@@ -69,7 +69,7 @@ numclust = ceil(sumn/max_clust_size);
 % maxmium number of seeds to use
 s_max = min(200,s);
 % show output
-show_output = false;
+show_output = true;
 
 %% perform embedding
 startt = tic;
@@ -103,7 +103,12 @@ end
 clear IDX Dis
 
 %% perform graph matching in parallel
-match = zeros(s+sumn,numclust);
+startt = tic;
+if (topK == true)
+    match = sparse(sumn + s, sumn + s); % entry i,j is probability vertex i in A is matched to vertex j in B
+else
+    match = zeros(s+sumn,numclust);
+end
 clust_labels_ = zeros(s+sumn,2,numclust);
 
 % Need a for loop here because of recursion, :(
@@ -127,10 +132,12 @@ for i = 1:numclust
 		startr = tic;
 %		'recurse'
 		% cluster to large, match recursively
-		[ord ii] = BigGMr( pieceA, pieceB, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg);
+		[ord ii] = BigGMr( pieceA, pieceB, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg, topK);
 	    ii = ii(s+1:end,:);
 	    
-		ord = ord(s+1:end) -s;
+        if (topK == false)
+            ord = ord(s+1:end) -s;
+        end
 		time_r = toc(startr);
 		fprintf('recursion time: %f\n', time_r);
         % rmpath at the end of BigGMr removes the path globally: we need to add it again
@@ -189,8 +196,10 @@ for i = 1:numclust
 %		inds(s_max+1:end) = [ s+1:size(pieceA,1)];
 		temp = zeros(s+sumn,2);
 		
-		ord = graphMatchAlg(pieceA(ind, ind), pieceB(ind, ind), s_max);
-		ord = ord(s_max+1:end)-s_max;
+		ord = graphMatchAlg(pieceA(ind, ind), pieceB(ind, ind), s_max, topK);
+        if (topK == false)
+            ord = ord(s_max+1:end)-s_max;
+        end
 	end
 	
 	% save cluster labels
@@ -199,15 +208,36 @@ for i = 1:numclust
 	temp(gB, 2) = ii(:,2);
 	clust_labels_(:,:,i) = temp;
 	
+
 	% save results
-	temp = zeros(s+sumn,1);
-	temp(gA) = gB(ord);
-    match(:,i) = temp;
+    if (topK == true)
+        nNonSeeds = length(gA); % gA and gB SHOULD be the same size!
+        %nSeeds = length(seeds);
+        % A not very clever way to record the results
+
+        % Nonseeds
+        for j = 1:nNonSeeds
+            for k = 1:nNonSeeds
+                match(gA(j), gB(k)) = ord(s + j, s + k);
+            end
+        end
+    else
+        temp = zeros(s+sumn,1);
+        temp(gA) = gB(ord);
+        match(:,i) = temp;
+    end
+    
     
 end
 % combine results
-match(1:s,1) = 1:s;
-match = sum(match,2)';
+if (topK == true)
+    for i = 1:s
+        match(i,i) = 1; % seeds are always matched to themselves
+    end
+elseif (topK == false)
+    match(1:s,1) = 1:s;
+    match = sum(match,2)';
+end
 
 clust_labels = clust_labels_(:,:,1);
 maxx = max(max(clust_labels));
@@ -219,7 +249,7 @@ for i = 2:numclust
 end
 
 if show_output
-	fprintf( 'done matching: %f\n', toc(startt)-time_r );
+	fprintf( 'done matching: %f\n', toc(startt) );
 	fprintf( 'total time: %f\n', toc(start) );
 end
 

@@ -1,4 +1,4 @@
-function init = alphaSpokeInit(k, alpha, center)
+function init = alphaSpokeInit(k, alpha, C)
 % function init = alphaSpokeInit(k, alpha, center)
 %
 % Returns the alpha-spoke random initialization:
@@ -9,10 +9,5 @@ function init = alphaSpokeInit(k, alpha, center)
 
 id = eye(k);
 P = id(randperm(k),:);
-if (strcmp(center, 'bari'))
-    C = ones(k)/k;
-else
-    C = ones(k)/k;
-end
 
 init = (1-alpha)*P + alpha*C;
