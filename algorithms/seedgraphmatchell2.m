@@ -66,10 +66,11 @@ end
 
 %% Matching just using seed to non-seed information
 if s > 0
-    corr_cNS = lapjv(-(A21*B21'+A12'*B12), scale );%YiCaoHungarian( -(A21*B21'+A12'*B12) );%
-    corr_c = 1:totv;
-    corr_c(seeds) = seeds;
-    corr_c(nonSeeds) = corr_cNS;
+    Ptotv = zeros(totv);
+    Ptotv(nonSeeds,nonSeeds) = A21*B21'+A12'*B12;
+    Ptotv(seeds,seeds) = eye(numel(seeds));
+    corr_c = lapjv(-Ptotv, scale );%YiCaoHungarian( -Ptotv );%
+
 else
     corr_c = NaN;
 end
