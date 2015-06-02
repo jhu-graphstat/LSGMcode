@@ -1,4 +1,4 @@
-function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,start)% ,alpha_type )
+function [ corr, corr_c ] = seedgraphmatchell2(A,B,seeds,start)% ,alpha_type )
 % Returns matching for the SGM problem using the SGM algorithm
 % 
 % [corr,corr_c] = seedgraphmatchell2(A,B,m,start)
@@ -25,22 +25,31 @@ if nargin < 4
     warning('Input variable start not set, default is "convex"');
     start = 'convex';
 end
+if numel(seeds) == 1
+    warning('Defaulting to seeds being the first %i vertices',seeds)
+    seeds = 1:seeds;
+end
+
+s = numel(seeds);
 
 
 [totv,~]=size(A); % number of vertices
 n=totv-s; % number of non-seeds
-eyen=eye(n);
+eyen=eye(n); 
 scale = 10000;
 patience=25;
 tol=.99;
 
+nonSeeds = true(1,totv);
+nonSeeds(seeds) = false;
+
 %% Get seed->non-seed, non-seed->seed, and non-seed->non-seed adj matrices
-A12=A(1:s,s+1:s+n);
-A21=A(s+1:s+n,1:s);
-A22=A(s+1:s+n,s+1:s+n);
-B12=B(1:s,s+1:s+n);
-B21=B(s+1:s+n,1:s);
-B22=B(s+1:s+n,s+1:s+n);
+A12=A(seeds,nonSeeds);
+A21=A(nonSeeds,seeds);
+A22=A(nonSeeds,nonSeeds);
+B12=B(seeds,nonSeeds);
+B21=B(nonSeeds,seeds);
+B22=B(nonSeeds,nonSeeds);
 
 %% Get the initial start
 if( strcmp(start,'bari' ))
@@ -57,8 +66,10 @@ end
 
 %% Matching just using seed to non-seed information
 if s > 0
-    corr_c = lapjv(-(A21*B21'+A12'*B12), scale );%YiCaoHungarian( -(A21*B21'+A12'*B12) );%
-    corr_c=[ 1:s,  s+corr_c];
+    corr_cNS = lapjv(-(A21*B21'+A12'*B12), scale );%YiCaoHungarian( -(A21*B21'+A12'*B12) );%
+    corr_c = 1:totv;
+    corr_c(seeds) = seeds;
+    corr_c(nonSeeds) = corr_cNS;
 else
     corr_c = NaN;
 end
@@ -105,10 +116,14 @@ while (toggle==1)&&(iter<patience)
 end
 
 %% Get the final correspondence
-corr = lapjv(-P, scale);%YiCaoHungarian(-P);%
+Ptotv = zeros(totv);
+Ptotv(nonSeeds,nonSeeds) = P;
+Ptotv(seeds,seeds) = eye(numel(seeds));
+corr = lapjv(-Ptotv, scale);%YiCaoHungarian(-P);%
 
 
-%init_vs_final_dissagreements = sum(ind0~=corr)
-
-corr=[ 1:s,  s+corr];
+% %init_vs_final_dissagreements = sum(ind0~=corr)
+% corr = 1:totV;
+% corr(seeds) = seeds;
+% corr(nonSeeds) = corrNS;
 
