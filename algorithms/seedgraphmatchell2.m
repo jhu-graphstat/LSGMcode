@@ -56,10 +56,10 @@ if( strcmp(start,'bari' ))
     % Use the baricenter
 	P = ones(n)/n;
 elseif( strcmp(start,'convex'))
-    fprintf('Start Conv Relax\n')
+    % fprintf('Start Conv Relax\n')
     % use the start from the convex relaxation
 	[~,P]=relaxed_normAPPB_FW_seeds(A22,B22,s);
-    fprintf('Done Conv Relax\n')
+    % fprintf('Done Conv Relax\n')
 else
     P = start;
 end
