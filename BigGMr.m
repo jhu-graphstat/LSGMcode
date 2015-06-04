@@ -62,7 +62,10 @@ end
 addpath algorithms/
 
 start = tic;
-sumn = length(A)-s;
+nANonseeds = length(A)-s;
+nBNonseeds = length(B) - s;
+
+sumn = max(nANonseeds, nBNonseeds);
 
 % number of clusters determined by max cluster size
 numclust = ceil(sumn/max_clust_size);
@@ -81,7 +84,7 @@ end
 %% compute procrusties othogonal projection (on the seed vertices)
 startt = tic;
 [~,~,TRANSFORM]=procrustes(XA(1:s,:),XB(1:s,:));
-TRANSFORM.c=ones(sumn+s,1)*TRANSFORM.c(1,:);
+TRANSFORM.c=ones(nBNonseeds+s,1)*TRANSFORM.c(1,:);
 XB = TRANSFORM.b * XB * TRANSFORM.T + TRANSFORM.c;
 if show_output
 	fprintf( 'done procrusties: %f\n', toc(startt) );
@@ -90,17 +93,18 @@ end
 %% cluster using the embedding
 startt = tic;
 XAXB=[XA;XB];
-nonseedsA = s+1:s+sumn;
-nonseedsB = s+sumn+ s+1:2*(s+sumn);
+nonseedsA = s+1:s+nANonseeds;
+nonseedsB = s+nANonseeds+ s+1:2*s + nANonseeds + nBNonseeds;
 nonseeds = [nonseedsA, nonseedsB];
-[IDX, centroid, Dis] = clustAlg(XAXB, numclust);
+%[IDX, centroid, Dis] = clustAlg(XAXB, numclust);
+[IDX, ~, ~] = clustAlg(XAXB, numclust);
 if show_output
 	fprintf( 'done clustering: %f\n', toc(startt) );
 end
 %% fix cluster sizes to be equal in both graphs
 
-[pieceA_,pieceB_,gA_,gB_] = fixClusterSize(A,B,IDX, Dis, numclust,nonseedsA, nonseedsB);
-clear IDX Dis
+[pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA, nonseedsB);
+clear IDX
 
 %% perform graph matching in parallel
 startt = tic;
@@ -186,7 +190,7 @@ for i = 1:numclust
 %		seeds = ind(1:num_seeds);
 		ind = [seeds, s+1:length(pieceA)];
 
-	
+
 %		% select seeds from the same cluster
 %		%  and randomly select remaining seeds from other clusters
 %		inds = zeros(s_max+size(pieceA,1)-s,1);
@@ -211,13 +215,14 @@ for i = 1:numclust
 
 	% save results
     if (topK == true)
-        nNonSeeds = length(gA); % gA and gB SHOULD be the same size!
+        nANonSeeds = length(gA); % gA and gB SHOULD be the same size!
+        nBNonSeeds = length(gB);
         %nSeeds = length(seeds);
         % A not very clever way to record the results
 
         % Nonseeds
-        for j = 1:nNonSeeds
-            for k = 1:nNonSeeds
+        for j = 1:nANonSeeds
+            for k = 1:nBNonSeeds
                 match(gA(j), gB(k)) = ord(s + j, s + k);
             end
         end

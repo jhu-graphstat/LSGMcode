@@ -58,7 +58,7 @@ else
 end
 
 
-for i = 1:numrestarts
+parfor i = 1:numrestarts
     init = alphaSpokeInit(n, alpha, centerMatrix);
     [corr, ~] = graphMatchAlg(A, B, s, init);
     P = id(corr,:);
