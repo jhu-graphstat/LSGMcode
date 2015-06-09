@@ -21,8 +21,8 @@ nodeCommon = innerjoin(node1,node2,'Keys',key,...
     'LeftVariables',{key,'idx'},'RightVariables',{'idx'});
 nodeCommon.is_hash = cellfun(@(name) name(1)=='#', nodeCommon.name);
 
-adj1= adj1(nodeCommon.idx_node_1,nodeCommon.idx_node_1);
-adj2 = adj2(nodeCommon.idx_node_2,nodeCommon.idx_node_2);
+adj1= adj1(nodeCommon.idx_node1,nodeCommon.idx_node1);
+adj2 = adj2(nodeCommon.idx_node2,nodeCommon.idx_node2);
 
 
 end
