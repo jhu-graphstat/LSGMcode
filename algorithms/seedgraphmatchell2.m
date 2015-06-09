@@ -1,4 +1,4 @@
-function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,topK, start)% ,alpha_type )
+function [ corr, corr_c ] = seedgraphmatchell2(A,B,seeds,topK, start)% ,alpha_type )
 % Returns matching for the SGM problem using the SGM algorithm
 % 
 % [corr,corr_c] = seedgraphmatchell2(A,B,m,start)

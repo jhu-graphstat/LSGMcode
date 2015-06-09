@@ -1,4 +1,4 @@
-function prob = alphaSpokeGraphMatching(A, B, s, topK, alpha, numrestarts, center, graphMatchAlg)
+function prob = alphaSpokeGraphMatching(A, B, seeds, topK, alpha, numrestarts, center, graphMatchAlg)
 % prob = alphaSpokeGraphMatching(A, B, s, topK, alpha, numrestarts)
 %
 % Run seeded graph matching with alpha-spoke initialization to produce
@@ -40,8 +40,18 @@ switch nargin
         graphMatchAlg = @seedgraphmatchell2; % SGM
 end
 
+if numel(seeds) == 1
+    warning('Defaulting to seeds being the first %i vertices',seeds)
+    seeds = 1:seeds;
+end
+
+s = numel(seeds);
+
 [totv,~]=size(A); % number of vertices
 n=totv-s; % number of non-seeds
+
+nonSeeds = true(1,totv);
+nonSeeds(seeds) = false;
 
 id = eye(totv);
 averageP = zeros(totv);
@@ -49,8 +59,8 @@ averageP = zeros(totv);
 if (strcmp(center, 'bari'))
     centerMatrix = ones(n)/n;
 elseif (strcmp(center, 'convex'))
-    A22=A(s+1:s+n,s+1:s+n);
-    B22=B(s+1:s+n,s+1:s+n);
+    A22=A(nonSeeds,nonSeeds);
+    B22=B(nonSeeds,nonSeeds);
     % This function doesn't use seeds correctly, so give it no seeds
     [~,centerMatrix]=relaxed_normAPPB_FW_seeds(A22,B22,0);
 else
@@ -60,8 +70,8 @@ end
 
 parfor i = 1:numrestarts
     init = alphaSpokeInit(n, alpha, centerMatrix);
-    [corr, ~] = graphMatchAlg(A, B, s, topK, init);
-    %disp(sprintf('Finished matching iteratio %d', i));
+    [corr, ~] = graphMatchAlg(A, B, seeds, topK, init);
+    disp(sprintf('Finished matching iteratio %d', i));
     P = id(corr,:);
     averageP = averageP + P;
 end
