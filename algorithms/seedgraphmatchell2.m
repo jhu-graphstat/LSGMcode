@@ -1,4 +1,4 @@
-function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,start)% ,alpha_type )
+function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,topK, start)% ,alpha_type )
 % Returns matching for the SGM problem using the SGM algorithm
 % 
 % [corr,corr_c] = seedgraphmatchell2(A,B,m,start)
@@ -21,7 +21,7 @@ function [ corr, corr_c ] = seedgraphmatchell2(A,B,s,start)% ,alpha_type )
 % Extends Donniell's code
 % (Extends Vogelstein, Conroy et al method for nonseed graphmatch to seed)
 
-if nargin < 4
+if nargin < 5
     warning('Input variable start not set, default is "convex"');
     start = 'convex';
 end

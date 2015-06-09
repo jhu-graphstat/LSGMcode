@@ -98,14 +98,17 @@ nonseedsA = s+1:s+nANonseeds;
 nonseedsB = s+nANonseeds+ s+1:2*s + nANonseeds + nBNonseeds;
 nonseeds = [nonseedsA, nonseedsB];
 %[IDX, centroid, Dis] = clustAlg(XAXB, numclust);
-[IDX, ~, ~] = clustAlg(XAXB, numclust);
+[IDX, ~, Dis] = clustAlg(XAXB, numclust);
 if show_output
 	fprintf( 'done clustering: %f\n', toc(startt) );
 end
 %% fix cluster sizes to be equal in both graphs
-
-[pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA, nonseedsB);
-clear IDX
+if topK == true
+    [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA, nonseedsB);
+else
+    [pieceA_,pieceB_,gA_,gB_] = fixClusterSize(A,B,IDX, Dis, numclust,nonseedsA, nonseedsB);
+end
+clear IDX Dis
 
 %% perform graph matching in parallel
 startt = tic;
@@ -127,13 +130,18 @@ for i = 1:numclust
 	pieceA = pieceA_{i};
 	pieceB = pieceB_{i};
 	
-	% if graph is empty
-	if length(gA)==0
+
+	% if either graph is empty 
+	if (isempty(gA) || isempty(gB))
 		continue;
-	end
+    end
+    
+    ngA = length(gA); % gA and gB can be different sizes!
+    ngB = length(gB);
 	
     % perform graph match
-	if length(gA) > max_clust_size
+	%if (ngA > max_clust_size) || (ngB > max_clust_size)
+    if 1 == 0
 		startr = tic;
 %		'recurse'
 		% cluster to large, match recursively
@@ -224,14 +232,13 @@ for i = 1:numclust
 
 	% save results
     if (topK == true)
-        nANonSeeds = length(gA); % gA and gB can be different sizes!
-        nBNonSeeds = length(gB);
+
         %nSeeds = length(seeds);
         % A not very clever way to record the results
 
         % A simple way to record the Nonseeds
-        for j = 1:nANonSeeds
-            for k = 1:nBNonSeeds
+        for j = 1:ngA
+            for k = 1:ngB
                 match(gA(j), gB(k)) = ord(s + j, s + k);
             end
         end

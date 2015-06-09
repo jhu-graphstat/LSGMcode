@@ -60,7 +60,8 @@ end
 
 parfor i = 1:numrestarts
     init = alphaSpokeInit(n, alpha, centerMatrix);
-    [corr, ~] = graphMatchAlg(A, B, s, init);
+    [corr, ~] = graphMatchAlg(A, B, s, topK, init);
+    disp(sprintf('Finished matching iteratio %d', i));
     P = id(corr,:);
     averageP = averageP + P;
 end
