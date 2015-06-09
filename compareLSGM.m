@@ -11,8 +11,8 @@ function [ acc, runtime] = compareLSGM(num_runs, N, m, corrln, lam)
 %numdim = rank(lam);
 numdim = 10;
 max_clust_size = sum(N)/length(lam);
-acc = zeros(6, num_runs);
-runtime = zeros(6, num_runs);
+acc = zeros(1, num_runs);
+runtime = zeros(1, num_runs);
 for r = 1:num_runs
 	% make experiments reproducable
 	rng(r);
@@ -23,9 +23,13 @@ for r = 1:num_runs
 	
 	% lsgm
 	start = tic;
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, @seedgraphmatchell2);
+    alpha = 0.2;
+    nRestarts = 10;
+    topKMatching = @(A, B, m, topK) alphaSpokeGraphMatching(A, B, m, topK, alpha, nRestarts);
+	matchMatrix = BigGMr( A,B,m,numdim, max_clust_size, @spectralEmbed, @kmeansAlg, topKMatching, true);
+    [weight, match] = max(matchMatrix, [], 2);
 	runtime(ex,r)  = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
+	acc(ex,r) = mean(shuffle(m+1:end)-m==match((m+1):end)');
 	ex = ex+1;
 	
 %	start = tic;
@@ -34,48 +38,6 @@ for r = 1:num_runs
 %	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
 %	ex = ex+1;
 
-	start = tic;
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, @graphmatchell2);
-	runtime(ex,r) = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
-	ex = ex+1;
-
-	% lsgmm
-	% choices for method: I U RANK QCV rand PATH s
-	start = tic;
-	gmAlg = @(A,B,s) graphmAlg(A,B,s,'U');
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, gmAlg);
-	runtime(ex,r) = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
-	ex = ex+1;
-	
-	start = tic;
-	gmAlg = @(A,B,s) graphmAlg(A,B,s,'RANK');
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, gmAlg);
-	runtime(ex,r) = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
-	ex = ex+1;
-	
-	start = tic;
-	gmAlg = @(A,B,s) graphmAlg(A,B,s,'QCV');
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, gmAlg);
-	runtime(ex,r) = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
-	ex = ex+1;
-	
-	start = tic;
-	gmAlg = @(A,B,s) graphmAlg(A,B,s,'rand');
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, gmAlg);
-	runtime(ex,r) = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
-	ex = ex+1;
-	
-	start = tic;
-	gmAlg = @(A,B,s) graphmAlg(A,B,s,'PATH');
-	match = BigGM( A,B,m,N, numdim, max_clust_size, @spectralEmbed, @kmeansAlg, gmAlg);
-	runtime(ex,r) = toc(start);
-	acc(ex,r) = mean(shuffle(m+1:end)-m==match);
-	ex = ex+1;
 end
 
 

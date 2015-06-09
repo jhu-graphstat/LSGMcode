@@ -59,7 +59,8 @@ switch nargin
         topK = false;
 end
 
-addpath algorithms/
+% If algorithms subdirectory not in matlab path, add it
+%addpath algorithms/
 
 start = tic;
 nANonseeds = length(A)-s;
@@ -72,7 +73,7 @@ numclust = ceil(sumn/max_clust_size);
 % maxmium number of seeds to use
 s_max = min(200,s);
 % show output
-show_output = true;
+ show_output = true;
 
 %% perform embedding
 startt = tic;
@@ -145,7 +146,7 @@ for i = 1:numclust
 		time_r = toc(startr);
 		fprintf('recursion time: %f\n', time_r);
         % rmpath at the end of BigGMr removes the path globally: we need to add it again
-        addpath algorithms/ 
+        %addpath algorithms/ 
 	else
 %		'cluster'
 
@@ -208,19 +209,27 @@ for i = 1:numclust
 	
 	% save cluster labels
 	temp = zeros(s+sumn,2);
-	temp(gA, 1) = ii(:,1);
-	temp(gB, 2) = ii(:,2);
+    % Hack to handle different sized graphs
+    if (length(ii) > 2)
+        nA = length(gA);
+        nB = length(gB);
+        temp(gA, 1) = ii(1:nA,1);
+        temp(gB, 2) = ii(1:nB,2);
+    else
+        temp(gA, 1) = ii(:,1);
+        temp(gB, 2) = ii(:,2);
+    end
 	clust_labels_(:,:,i) = temp;
 	
 
 	% save results
     if (topK == true)
-        nANonSeeds = length(gA); % gA and gB SHOULD be the same size!
+        nANonSeeds = length(gA); % gA and gB can be different sizes!
         nBNonSeeds = length(gB);
         %nSeeds = length(seeds);
         % A not very clever way to record the results
 
-        % Nonseeds
+        % A simple way to record the Nonseeds
         for j = 1:nANonSeeds
             for k = 1:nBNonSeeds
                 match(gA(j), gB(k)) = ord(s + j, s + k);
@@ -258,7 +267,10 @@ if show_output
 	fprintf( 'total time: %f\n', toc(start) );
 end
 
-rmpath algorithms/
+% Remove the algorithms subdirectory from matlab's path.
+% If it was already on matlab's path, does this remove it after the function has
+% been called? This would be an undesirable outcome.
+%rmpath algorithms/
 
 end
 
