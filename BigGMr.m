@@ -74,10 +74,16 @@ numclust = ceil(sumn/max_clust_size);
 s_max = min(200,s);
 % show output
  show_output = true;
+ 
+% Use regularized graph laplacian (Qin and Rohe 2012)
+
+LA = regularizedLaplacian(A);
+LB = regularizedLaplacian(B);
+
 
 %% perform embedding
 startt = tic;
-[XA XB] = embedAlg(A, B, numdim);
+[XA XB] = embedAlg(LA, LB, numdim);
 if show_output
 	fprintf( 'done projection: %f\n', toc(startt) );
 end
@@ -144,7 +150,7 @@ for i = 1:numclust
     if 1 == 0
 		startr = tic;
 %		'recurse'
-		% cluster to large, match recursively
+		% cluster too large, match recursively
 		[ord ii] = BigGMr( pieceA, pieceB, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg, topK);
 	    ii = ii(s+1:end,:);
 	    

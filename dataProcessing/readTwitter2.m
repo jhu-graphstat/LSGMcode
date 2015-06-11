@@ -14,7 +14,7 @@ n_node = height(node);
 node.idx = (1:n_node)';
 % A hash to access the node index from its id
 % Add 1 since Kitware data is initialized at zero
-hash = sparse(1,node.id+1,node.idx);
+hash = containers.Map(node.id, node.idx);
 %% Load edges
 edge = readtable(edgeFn,'ReadVariableNames',false,'Delimiter',' ');
 
@@ -24,8 +24,23 @@ edge.Properties.VariableNames = {'out','in'};
 
 %% make adj
 
-edge.out_idx = full(hash(edge.out+1))'; % remember node list init at zero
-edge.in_idx = full(hash(edge.in+1))';
+%edge.out_idx = full(hash(edge.out))'; % remember node list init at zero
+%edge.in_idx = full(hash(edge.in))';
+
+if length(edge.out) ~= length(edge.in)
+    error('Number of out vertices does not match in vertices')
+end
+
+nEdges = length(edge.out);
+
+edge.out_idx = zeros(nEdges,1);
+edge.in_idx = zeros(nEdges,1);
+
+
+for i = 1:nEdges
+    edge.out_idx(i) = hash(edge.out(i));
+    edge.in_idx(i) = hash(edge.in(i));
+end
 
 % Make a symmetric adjacency matrix
 adj = sparse([edge.out_idx, edge.in_idx],[edge.in_idx, edge.out_idx], 1);

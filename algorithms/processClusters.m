@@ -53,6 +53,12 @@ for i=1:numclust
     nPieceA = length(pieceA);
     nPieceB = length(pieceB);
     
+    if (nPieceA > 10000 || nPieceB > 10000)
+        error('A cluster contains more than 10000 nodes: exiting to prevent memory issues')
+    elseif (nPieceA > 1000 || nPieceB > 1000)
+        warning('A cluster contains more than 100- nodes: expect performance decrease')
+    end
+    
     % If the number of vertices from each graph are not equal in the
     % cluster, add dummy vertices for the smaller graph
     if nPieceA < nPieceB
