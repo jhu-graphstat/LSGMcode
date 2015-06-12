@@ -42,23 +42,25 @@ while length(unique(L)) ~= k
         [~,L] = max(bsxfun(@minus,2*real(C'*X),dot(C,C,1).'),[],1);
     end
     
-    c = 1;
-    clusterC = find(L == c);
-    while(~isempty(clusterC))
-        if length(clusterC) > maxClustSize
-            [subL, subC] = kmeansBisect(X(:, clusterC), 2, maxClustSize);
-            % Add new cluster centers
-            C = [C(:,1:(c-1)), subC, C(:,(c+1):end)];
-            numNewClusters = size(subC,2);
-            % Shift old cluster labels
-            L(L > c) = L(L > c) + numNewClusters - 1;
-            % Assign labels c, c+1, ... to the newly split cluster
-            L(clusterC) = subL + c - 1;
-            c = c + numNewClusters - 1; % skip to a new cluster
-        end
-        c = c + 1;
-        clusterC = find(L == c);
+end
+
+% If any clusters are too large, we recursively bisect them
+c = 1;
+clusterC = find(L == c);
+while(~isempty(clusterC))
+    if length(clusterC) > maxClustSize
+        [subL, subC] = kmeansBisect(X(:, clusterC), 2, maxClustSize);
+        % Add new cluster centers
+        C = [C(:,1:(c-1)), subC, C(:,(c+1):end)];
+        numNewClusters = size(subC,2);
+        % Shift old cluster labels
+        L(L > c) = L(L > c) + numNewClusters - 1;
+        % Assign labels c, c+1, ... to the newly split cluster
+        L(clusterC) = subL + c - 1;
+        c = c + numNewClusters - 1; % skip to a new cluster
     end
-    
-    
+    c = c + 1;
+    clusterC = find(L == c);
+end
+
 end
