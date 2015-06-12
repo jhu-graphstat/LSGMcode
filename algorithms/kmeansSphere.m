@@ -1,4 +1,4 @@
-function [IDX, centroid, Dis] = kmeansSphere(X, numclust)
+function [IDX, centroid, Dis] = kmeansSphere(X, numclust, maxclustsize)
 % Clusters the rows of X by first projecting onto the unit sphere and then
 % applying kmeans clustering
 %
@@ -16,12 +16,15 @@ function [IDX, centroid, Dis] = kmeansSphere(X, numclust)
 %         Dis : size(X,1) x numclust matrix, where entry i,j gives the
 %               distance from data point i to cluster centroid j
 
+startt = tic;
 n = size(X,1); % number of data points
 Y = zeros(size(X));
 for i = 1:n
     Y(i,:) = X(i,:)/norm(X(i,:));
 end
 
-[IDX, centroid, Dis] = kmeansAlg(Y, numclust);
+fprintf( 'done spherical projection: %f\n', toc(startt) );
+
+[IDX, centroid, Dis] = kmeansHybrid(Y, numclust, maxclustsize);
 
 end

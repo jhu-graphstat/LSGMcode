@@ -49,7 +49,8 @@ c = 1;
 clusterC = find(L == c);
 while(~isempty(clusterC))
     if length(clusterC) > maxClustSize
-        [subL, subC] = kmeansBisect(X(:, clusterC), 2, maxClustSize);
+        numNewClusters = ceil(length(clusterC)/maxClustSize);
+        [subL, subC] = kmeansBisect(X(:, clusterC), numNewClusters, maxClustSize);
         % Add new cluster centers
         C = [C(:,1:(c-1)), subC, C(:,(c+1):end)];
         numNewClusters = size(subC,2);

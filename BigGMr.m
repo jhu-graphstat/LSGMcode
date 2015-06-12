@@ -104,7 +104,7 @@ nonseedsA = s+1:s+nANonseeds;
 nonseedsB = s+nANonseeds+ s+1:2*s + nANonseeds + nBNonseeds;
 nonseeds = [nonseedsA, nonseedsB];
 %[IDX, centroid, Dis] = clustAlg(XAXB, numclust);
-[IDX, ~, Dis] = clustAlg(XAXB, numclust);
+[IDX, ~, Dis] = clustAlg(XAXB, numclust, max_clust_size);
 if show_output
 	fprintf( 'done clustering: %f\n', toc(startt) );
 end
