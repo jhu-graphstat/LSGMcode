@@ -10,7 +10,7 @@ nrows = length(rowSums);
 % Use average degree as regularizer: 
 % Breaking the computation into two parts to help reduce possibility of
 % round off errors for large graphs
-regularizer = sum(rowSums/nrows)/(nrows - 1);
+regularizer = sum(rowSums/nrows);
 D_sqrt = sparse(1:nrows, 1:nrows, 1./sqrt(rowSums + regularizer)); % Sparse diagonal matrix
 
 L = D_sqrt * A * D_sqrt;
