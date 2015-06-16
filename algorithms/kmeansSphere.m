@@ -18,7 +18,7 @@ function [IDX, centroid, Dis] = kmeansSphere(X, numclust, maxclustsize)
 
 startt = tic;
 n = size(X,1); % number of data points
-Y = zeros(size(X));
+Y = zeros(size(X)); % embedded points are not sparse!
 for i = 1:n
     Y(i,:) = X(i,:)/norm(X(i,:));
 end
