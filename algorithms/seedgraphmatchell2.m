@@ -79,18 +79,23 @@ toggle=1;
 iter=0;
 while (toggle==1)&&(iter<patience)
     iter=iter+1;
+    % Frontload some computation for later use
+    y=A22'*P*B22;
+    z=A21*B21';
+    zz=A12'*B12;
     % Compute the gradient of the objective function
-    Grad=A22*P*B22'+A22'*P*B22+A21*B21'+A12'*B12;
+    Grad=A22*P*B22'+y+z+zz;
     % Find the LAP solution for the negative gradient
     ind = lapjv( -Grad, scale );%YiCaoHungarian(-Grad);%
     T=eyen(ind,:);
     
     % Compute some temporary quantities
-    c=trace(A22'*P*B22*P');
-    d=trace(A22'*T*B22*P')+trace(A22'*P*B22*T');
-    e=trace(A22'*T*B22*T');
-    u=trace(P'*A21*B21'+P'*A12'*B12);
-    v=trace(T'*A21*B21'+T'*A12'*B12);
+    w=A22'*T*B22;
+    c=trace(y*P');
+    d=trace(w*P')+trace(y*T');
+    e=trace(w*T');
+    u=trace(P'*z+P'*zz);
+    v=trace(T'*z+T'*zz);
 
     % Determine step size
     alpha=-(d-2*e+u-v)/(2*(c-d+e));
