@@ -22,19 +22,17 @@ nonSeeds = ~ismember(1:p,seeds);
 
 nSeed = numel(seeds);
 
-P = zeros(p);
-P(nonSeeds,nonSeeds)=ones(p-nSeeds)/(p-nSeed);
+P = eye(p);
+P(nonSeeds,nonSeeds)=ones(p-nSeed)/(p-nSeed);
 
-P(seeds,seeds)=eye(nSeed);
-
- if ~isempty(varargin)
-     if (size(varargin{1},1) > 1)
+if ~isempty(varargin)
+    if (size(varargin{1},1) > 1)
         P=varargin{1}; 
-     else
+    else
         tol2=varargin{1};    
-     end
-     
- end
+    end
+
+end
 
 f=f1(P);
 var=1;
@@ -69,7 +67,8 @@ while (f>tol) && (var > tol2)
     P=Ps4;
     
     var=abs(f-fold);
-    if (verbose) fprintf('f: %1.5f  var %.15f\n',f,var); end
+    if (verbose) 
+        fprintf('f: %1.5f  var %.15f\n',f,var); end
 
 end
 
