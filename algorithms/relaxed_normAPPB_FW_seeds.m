@@ -12,17 +12,27 @@ f1 = @(P) norm(A*P-P*B,'fro')^2;
 tol=5e-2;
 tol2=1e-5;
 
-P=ones(p)/(p-seeds);
-P(1:seeds,1:seeds)=eye(seeds);
+if numel(seeds)==1
+    warning('Defaulting seeds to be the first %i',seeds);
+    seeds = 1:seeds;
+    
+end
 
- if ~isempty(varargin)
-     if (size(varargin{1},1) > 1)
+nonSeeds = ~ismember(1:p,seeds);
+
+nSeed = numel(seeds);
+
+P = eye(p);
+P(nonSeeds,nonSeeds)=ones(p-nSeed)/(p-nSeed);
+
+if ~isempty(varargin)
+    if (size(varargin{1},1) > 1)
         P=varargin{1}; 
-     else
+    else
         tol2=varargin{1};    
-     end
-     
- end
+    end
+
+end
 
 f=f1(P);
 var=1;
@@ -32,16 +42,16 @@ while (f>tol) && (var > tol2)
 
     grad = AtA*P -A'*P*B - A*P*B' + P*BBt;
     
-    grad(1:seeds,:)=0;
-    grad(:,1:seeds)=0;
+    grad(seeds,:)=0;
+    grad(:,seeds)=0;
     
-    corr=lapjv(grad(seeds+1:end,seeds+1:end),0.01);
+    corr=lapjv(grad(nonSeeds,nonSeeds),0.01);
     Ps=perm2mat(corr);
 
     Ps =Ps';
     
     Ps1=eye(p);
-    Ps1(seeds+1:end,seeds+1:end) = Ps;
+    Ps1(nonSeeds,nonSeeds) = Ps;
     Ps=Ps1;
     
     C = A*(P-Ps) + (Ps-P)*B; 
@@ -57,7 +67,8 @@ while (f>tol) && (var > tol2)
     P=Ps4;
     
     var=abs(f-fold);
-    if (verbose) fprintf('f: %1.5f  var %.15f\n',f,var); end
+    if (verbose) 
+        fprintf('f: %1.5f  var %.15f\n',f,var); end
 
 end
 

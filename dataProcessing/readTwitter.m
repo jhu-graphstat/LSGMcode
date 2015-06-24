@@ -10,21 +10,21 @@ function [node, adj] = readTwitter(nodeFn, edgeFn)
 %% Load nodes
 node = readtable(nodeFn,'ReadVariableNames',false,'Delimiter',' ');
 node.Properties.VariableNames = {'id' 'name'};
-n_node = height(node);
+n_node = height(node)
 node.idx = (1:n_node)';
+node.id = node.id;
 % A hash to access the node index from its id
-hash = sparse(1,node.id,node.idx);
+hash = sparse(1,node.id+1,node.idx);
 %% Load edges
-edge = readtable(edgeFn,'ReadVariableNames',false,'Delimiter',' ');
-
-%% Make nice
-edge = edge(:,1:5);
-edge.Properties.VariableNames = {'out','in','e1','e2','e3'};
+edge = dlmread(edgeFn,' ');
+edge(isnan(edge))= 0;
+edge(:,1:2) = edge(:,1:2)+1;
+edge(:,3) = sum(edge(:,3:5)')';
 
 %% make adj
 
-edge.out_idx = full(hash(edge.out))';
-edge.in_idx = full(hash(edge.in))';
+edgeOutIdx = full(hash(edge(:,1)))';
+edgeInIdx = full(hash(edge(:,2)))';
 
-adj = sparse(edge.out_idx,edge.in_idx, edge.e1);
+adj = sparse(edgeOutIdx,edgeInIdx, edge(:,3));
 end
