@@ -1,5 +1,13 @@
-function [A, B, findme] = sampleGraphs(s, n, crln, lam)
+function [A, B, findme, indicate] = sampleGraphs(s, n, crln, lam)
 % creates 2 correlated k block model graphs
+% s : number of seeds
+% n : k x 1 vector of sizes of each block
+% crln : correlation between graphs
+% lam : k x k block probability matrix
+%
+% A, B : adjacency matrices
+% findme : permutation of the nonseeds of B to get A
+% indicate : block membership vector for graph B
 
 numblocks=length(n);
 sumn=sum(n);
@@ -13,11 +21,11 @@ end
 for i=1:s
     temp=0;
     a=rand;
-    for i=1:numblocks
+    for ii=1:numblocks
         if a>temp
-            j=i;
+            j=ii;
         end
-        temp=temp+n(i)/sumn;
+        temp=temp+n(ii)/sumn;
     end
     indicate=[j; indicate];
 end

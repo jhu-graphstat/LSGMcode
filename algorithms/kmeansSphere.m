@@ -25,6 +25,6 @@ end
 
 fprintf( 'done spherical projection: %f\n', toc(startt) );
 
-[IDX, centroid, Dis] = kmeansHybrid(Y, numclust, maxclustsize);
+[IDX, centroid, Dis] = kmeansAlg(Y, numclust);
 
 end
