@@ -153,7 +153,7 @@ for i = 1:numclust
 	
     % perform graph match
 	%if (ngA > max_clust_size) || (ngB > max_clust_size)
-    if 1 == 0
+    if false
 		startr = tic;
 %		'recurse'
 		% cluster too large, match recursively
@@ -173,7 +173,8 @@ for i = 1:numclust
     	% select seeds for SGM
     	seedsA = pieceA(1:s, s+1:end);
     	seedsB = pieceB(1:s, s+1:end);
-    	
+    	seeds = activeSeedSelection(seedsA, seedsB, s_max);
+        %{
     	avgdegA = mean(seedsA,2);
     	avgdegB = mean(seedsB,2);
     	seedcans = 1:s;
@@ -209,6 +210,7 @@ for i = 1:numclust
 			seedcans = seedcans([1:ind-1, ind+1:end]);
 		end
 %		seeds = ind(1:num_seeds);
+        %}
 		ind = [seeds, s+1:length(pieceA)];
 
 
@@ -219,7 +221,7 @@ for i = 1:numclust
 %		inds(1:s_max) = [randsample( find(IDXs==i)', n1 ) , randsample(find(IDXs~=i)', s_max-n1) ];
 %		% add remaining indices
 %		inds(s_max+1:end) = [ s+1:size(pieceA,1)];
-		temp = zeros(s+sumn,2);
+%		temp = zeros(s+sumn,2);
 		
 		ord = graphMatchAlg(pieceA(ind, ind), pieceB(ind, ind), s_max, topK);
         if (topK == false)

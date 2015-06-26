@@ -60,8 +60,8 @@ while(~isempty(clusterC))
     nB = length(iB);
     if  (nA > 0 && nB > 0) && (length(iA) + length(iB) > 2*maxClustSize)
         %numNewClusters = ceil(length(clusterC)/maxClustSize);
-        %seeds = activeSeedSelection(A(1:s, iA), B(1:s, iB), s_max);
-        seeds = 1:s; % temporarily use all seeds
+        seeds = activeSeedSelection(A(1:s, iA), B(1:s, iB), s_max);
+        %seeds = 1:s; % temporarily use all seeds
         if ~isempty(seeds) 
             iA = [seeds'; iA];
             iB = [seeds'; iB];
