@@ -98,7 +98,7 @@ startt = tic;
 [~,~,TRANSFORM]=procrustes(XA(1:s,:),XB(1:s,:));
 TRANSFORM.c=ones(nBNonseeds+s,1)*TRANSFORM.c(1,:);
 XB = TRANSFORM.b * XB * TRANSFORM.T + TRANSFORM.c;
-if show_output
+if show_output%{
 	fprintf( 'done procrusties: %f\n', toc(startt) );
 end
 
