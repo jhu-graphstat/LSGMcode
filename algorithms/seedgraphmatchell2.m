@@ -1,4 +1,4 @@
-function [ corr, corr_c ] = seedgraphmatchell2(A,B,seeds,start)
+function [ corr, corr_c ] = seedgraphmatchell2(A,B,seeds,start, roundGrad)
 % Returns matching for the SGM problem using the SGM algorithm
 % 
 % [corr,corr_c] = seedgraphmatchell2(A,B,m,start)
@@ -25,6 +25,10 @@ if nargin < 4
     warning('Input variable start not set, default is "convex"');
     start = 'convex';
 end
+if nargin < 5
+    roundGrad = true;
+end
+
 if numel(seeds) == 1
     warning('Defaulting to seeds being the first %i vertices',seeds)
     seeds = 1:seeds;
@@ -57,7 +61,7 @@ if( strcmp(start,'bari' ))
 	P = ones(n)/n;
 elseif( strcmp(start,'convex'))
     % use the start from the convex relaxation
-	P=relaxed_normAPPB_FW_seeds(A,B,seeds);
+	P=relaxed_normAPPB_FW_seeds(A,B,seeds,roundGrad);
     P = P(nonSeeds,nonSeeds);
 else
     P = start;
@@ -85,8 +89,13 @@ while (toggle==1)&&(iter<patience)
     zz=A12'*B12;
     % Compute the gradient of the objective function
     Grad=A22*P*B22'+y+z+zz;
+    Grad=Grad+min(min(Grad));
     % Find the LAP solution for the negative gradient
-    ind = lapjv( -Grad, scale );%YiCaoHungarian(-Grad);%
+    if roundGrad
+        ind = lapjv( -round(n*Grad));%YiCaoHungarian(-Grad);%
+    else
+        ind = lapjv( Grad);%YiCaoHungarian(-Grad);%
+    end
     T=eyen(ind,:);
     
     % Compute some temporary quantities

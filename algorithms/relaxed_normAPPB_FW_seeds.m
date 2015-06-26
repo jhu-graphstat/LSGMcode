@@ -1,4 +1,4 @@
-function [P,Pp]=relaxed_normAPPB_FW_seeds(A,B,seeds,varargin)
+function [P,Pp]=relaxed_normAPPB_FW_seeds(A,B,seeds,roundGrad,varargin)
 
 verbose = 0;
 
@@ -11,6 +11,8 @@ f1 = @(P) norm(A*P-P*B,'fro')^2;
 
 tol=5e-2;
 tol2=1e-5;
+scale = 100;
+
 
 if numel(seeds)==1
     warning('Defaulting seeds to be the first %i',seeds);
@@ -21,9 +23,14 @@ end
 nonSeeds = ~ismember(1:p,seeds);
 
 nSeed = numel(seeds);
+nnSeed = p-nSeed;
 
 P = eye(p);
 P(nonSeeds,nonSeeds)=ones(p-nSeed)/(p-nSeed);
+
+if nargin < 4
+    roundGrad = true;
+end
 
 if ~isempty(varargin)
     if (size(varargin{1},1) > 1)
@@ -31,21 +38,27 @@ if ~isempty(varargin)
     else
         tol2=varargin{1};    
     end
-
 end
 
 f=f1(P);
 var=1;
 
-while (f>tol) && (var > tol2)
+iter = 0;
+Pdiff = Inf;
+
+while (f > tol) && (var > tol2) && (Pdiff>tol) 
+    iter = iter+1;
     fold=f;
 
     grad = AtA*P -A'*P*B - A*P*B' + P*BBt;
-    
+    grad = grad + min(min(grad));
     grad(seeds,:)=0;
     grad(:,seeds)=0;
-    
-    corr=lapjv(grad(nonSeeds,nonSeeds),0.01);
+    if roundGrad
+        corr=lapjv(round(nnSeed*grad(nonSeeds,nonSeeds)));
+    else
+        corr=lapjv(grad(nonSeeds,nonSeeds));
+    end
     Ps=perm2mat(corr);
 
     Ps =Ps';
@@ -64,11 +77,15 @@ while (f>tol) && (var > tol2)
     Ps4 = aopt*P + (1-aopt)*Ps;
     
     f=f1(Ps4);
+    Pdiff = sum(sum(abs(P-Ps4)));
     P=Ps4;
+    
+    
     
     var=abs(f-fold);
     if (verbose) 
-        fprintf('f: %1.5f  var %.15f\n',f,var); end
+        fprintf('f: %1.5f  var %.15f\n',f,var);
+    end
 
 end
 
