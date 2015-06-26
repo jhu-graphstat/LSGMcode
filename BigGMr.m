@@ -253,7 +253,7 @@ for i = 1:numclust
         % A simple way to record the Nonseeds
         for j = 1:ngA
             for k = 1:ngB
-                match(gA(j), gB(k)) = ord(s + j, s + k);
+                match(gA(j), gB(k)) = ord(s_max + j, s_max + k);
             end
         end
     else
