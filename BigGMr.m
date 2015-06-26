@@ -62,8 +62,8 @@ end
 % If algorithms subdirectory not in matlab path, add it
 %addpath algorithms/
 
-A = prune(A, 1:s);
-B = prune(B, 1:s);
+%A = prune(A, 1:s);
+%B = prune(B, 1:s);
 
 start = tic;
 nANonseeds = length(A)-s;
@@ -83,7 +83,7 @@ s_max = min(200,s);
 LA = regularizedLaplacian(A);
 LB = regularizedLaplacian(B);
 
-[gA_, gB_] = jointCluster(LA, LB, numdim, max_clust_size);
+[IDX, nonseedsA, nonseedsB] = jointCluster(LA, LB, s_max, numdim, max_clust_size);
 
 %% perform embedding
 %{
@@ -116,7 +116,7 @@ end
 %}
 %% fix cluster sizes to be equal in both graphs
 if topK == true
-    [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA, nonseedsB);
+    [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, nonseedsA, nonseedsB);
 else
     [pieceA_,pieceB_,gA_,gB_] = fixClusterSize(A,B,IDX, Dis, numclust,nonseedsA, nonseedsB);
 end

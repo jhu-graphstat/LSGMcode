@@ -1,4 +1,4 @@
-function [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA, nonseedsB)
+function [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, nonseedsA, nonseedsB)
 % [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA, nonseedsB)
 % Returns four cell arrays with (respectively) the adjacency submatrices
 % for graphs A and B corresponding to each cluster, and arrays of indices
@@ -7,7 +7,6 @@ function [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA
 % INPUTS:       A, B : (sparse matrix) adjacency matrices
 %                IDX : array with cluster assignment for all vertices in
 %                      both graphs
-%           numclust : total number of clusters
 %          nonseedsA : array of indices of nonseed vertices from graph A
 %          nonseedsB : array of indices of nonseed vertices from graph B
 % OUTPUTS:   pieceA_ : cell array whose i-th entry contains the adjacency
@@ -21,6 +20,8 @@ function [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, numclust,nonseedsA
 
 nANonseeds = length(nonseedsA);
 s = length(A)-nANonseeds;
+
+numclust = max(IDX);
 
 
 IDXA = IDX(nonseedsA);
