@@ -24,7 +24,7 @@ for weight=weighting
     if isa(w, 'function_handle')
         s = w(s);
     elseif strcmp(w,'rank')
-        s = tiedrank(s)/numel(s);
+        s = tiedrank(s)*2; % times two to get integers 
     end
 end
 
