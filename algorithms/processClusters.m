@@ -37,7 +37,7 @@ for i=1:numclust
     % find i-th clusters in both graphs
     iACluster=find(IDXA==i);
     iBCluster=find(IDXB==i);
-	if isempty(iACluster) && isempty(iBCluster)
+	if isempty(iACluster) || isempty(iBCluster)
 		continue
 	end
    

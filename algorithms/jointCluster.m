@@ -70,7 +70,7 @@ while(~isempty(clusterC))
         end
         [subIDX, ~, ~] = jointCluster(A(iA,iA), B(iB,iB), s_max, nDim, maxClustSize);
         % Only grab nonseeds
-        subIDX = subIDX([(s+1):(s+nA), (2*s+nA + 1):(2*s+nA+nB)]);
+        subIDX = subIDX([(s_max+1):(s_max+nA), (2*s_max+nA + 1):(2*s_max+nA+nB)]);
         numNewClusters = max(subIDX);
         % Shift old cluster labels
         IDX(IDX > c) = IDX(IDX > c) + numNewClusters - 1;
@@ -83,8 +83,8 @@ while(~isempty(clusterC))
     clusterC = clusterC(clusterC > s & (clusterC <= (s + nANonseeds) | clusterC > (2*s + nANonseeds)));
 end
 
-nonseedsA = 1:nANonseeds;
-nonseedsB = (nANonseeds + 1):(nANonseeds + nBNonseeds);
+%nonseedsA = 1:nANonseeds;
+%nonseedsB = (nANonseeds + 1):(nANonseeds + nBNonseeds);
 
 if show_output
     fprintf('done recursive clustering: %f\n', toc(startt))

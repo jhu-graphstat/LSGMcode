@@ -83,7 +83,7 @@ s_max = min(200,s);
 LA = regularizedLaplacian(A);
 LB = regularizedLaplacian(B);
 
-[IDX, nonseedsA, nonseedsB] = jointCluster(LA, LB, s_max, numdim, max_clust_size);
+[IDX, nonseedsA, nonseedsB] = jointCluster(LA, LB, s, numdim, max_clust_size);
 
 %% perform embedding
 %{
