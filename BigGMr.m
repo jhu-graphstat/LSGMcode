@@ -77,7 +77,14 @@ numclust = ceil(sumn/max_clust_size);
 s_max = min(200,s);
 % show output
  show_output = true;
- 
+
+% Log transform count data
+
+log1 = @(x) log(x+1);
+
+A = spfun(log1, A);
+B = spfun(log1, B);
+
 % Use regularized graph laplacian (Qin and Rohe 2012)
 
 LA = regularizedLaplacian(A);
@@ -125,7 +132,7 @@ clear IDX Dis
 %% perform graph matching in parallel
 startt = tic;
 if (topK == true)
-    match = sparse(sumn + s, sumn + s); % entry i,j is probability vertex i in A is matched to vertex j in B
+    match = sparse(nAnonseeds + s, nBnonseeds + s); % entry i,j is probability vertex i in A is matched to vertex j in B
 else
     match = zeros(s+sumn,numclust);
 end

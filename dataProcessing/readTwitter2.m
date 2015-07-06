@@ -11,8 +11,8 @@ function adj = readTwitter2(edgeFn)
 edge = readtable(edgeFn,'ReadVariableNames',false,'Delimiter',' ');
 
 %% Make nice
-edge = edge(:,1:2); % Kitware data doesn't have attributes
-edge.Properties.VariableNames = {'out','in'};
+edge = edge(:,1:3); % Kitware data doesn't have attributes
+edge.Properties.VariableNames = {'out','in', 'value'};
 
 %% make adj
 
@@ -24,5 +24,5 @@ if length(edge.out) ~= length(edge.in)
 end
 
 % Make a symmetric adjacency matrix
-adj = sparse([edge.out, edge.in],[edge.in, edge.out], 1);
+adj = sparse([edge.out; edge.in],[edge.in; edge.out], [edge.value; edge.value]);
 end

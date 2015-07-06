@@ -24,8 +24,8 @@ function [ corr, corr_c ] = seedgraphmatchell2(A,B,seeds,topK, start, roundGrad)
 if nargin < 5
     warning('Input variable start not set, default is "convex"');
     start = 'convex';
-end
-if nargin < 5
+    roundGrad = true;
+elseif nargin < 6
     roundGrad = true;
 end
 
