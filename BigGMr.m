@@ -59,12 +59,6 @@ switch nargin
         topK = false;
 end
 
-% If algorithms subdirectory not in matlab path, add it
-%addpath algorithms/
-
-%A = prune(A, 1:s);
-%B = prune(B, 1:s);
-
 start = tic;
 nANonseeds = length(A)-s;
 nBNonseeds = length(B) - s;
@@ -92,35 +86,7 @@ LB = regularizedLaplacian(B);
 
 [IDX, nonseedsA, nonseedsB] = jointCluster(LA, LB, s, numdim, max_clust_size);
 
-%% perform embedding
-%{
-startt = tic;
-[XA XB] = embedAlg(LA, LB, numdim);
-if show_output
-	fprintf( 'done projection: %f\n', toc(startt) );
-end
 
-%% compute procrusties othogonal projection (on the seed vertices)
-startt = tic;
-[~,~,TRANSFORM]=procrustes(XA(1:s,:),XB(1:s,:));
-TRANSFORM.c=ones(nBNonseeds+s,1)*TRANSFORM.c(1,:);
-XB = TRANSFORM.b * XB * TRANSFORM.T + TRANSFORM.c;
-if show_output%{
-	fprintf( 'done procrusties: %f\n', toc(startt) );
-end
-
-%% cluster using the embedding
-startt = tic;
-XAXB=[XA;XB];
-nonseedsA = s+1:s+nANonseeds;
-nonseedsB = s+nANonseeds+ s+1:2*s + nANonseeds + nBNonseeds;
-nonseeds = [nonseedsA, nonseedsB];
-%[IDX, centroid, Dis] = clustAlg(XAXB, numclust);
-[IDX, ~, Dis] = clustAlg(XAXB, numclust, max_clust_size);
-if show_output
-	fprintf( 'done clustering: %f\n', toc(startt) );
-end
-%}
 %% fix cluster sizes to be equal in both graphs
 if topK == true
     [pieceA_,pieceB_,gA_,gB_] = processClusters(A,B,IDX, nonseedsA, nonseedsB);
@@ -231,10 +197,6 @@ if show_output
 	fprintf( 'total time: %f\n', toc(start) );
 end
 
-% Remove the algorithms subdirectory from matlab's path.
-% If it was already on matlab's path, does this remove it after the function has
-% been called? This would be an undesirable outcome.
-%rmpath algorithms/
 
 end
 
