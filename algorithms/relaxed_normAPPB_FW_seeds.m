@@ -13,11 +13,13 @@ tol=5e-2;
 tol2=1e-5;
 scale = 100;
 
-
-if numel(seeds)==1
+% adds the ability to have seeds=0 in the function
+if ( (numel(seeds)==1) & (seeds ~=0) )
     warning('Defaulting seeds to be the first %i',seeds);
     seeds = 1:seeds;
-    
+end
+if ( (numel(seeds)==1) & (seeds ==0) )
+    seeds=[];
 end
 
 nonSeeds = ~ismember(1:p,seeds);
