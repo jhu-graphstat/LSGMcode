@@ -1,4 +1,4 @@
-function [IDX, nonseedsA, nonseedsB, XAXB] = jointCluster(A, B, s, nDim, maxClustSize)
+function [IDX, nonseedsA, nonseedsB] = jointCluster(A, B, s, nDim, maxClustSize)
 
 
 nANonseeds = length(A) - s;

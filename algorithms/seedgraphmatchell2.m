@@ -128,5 +128,9 @@ end
 Ptotv = zeros(totv);
 Ptotv(nonSeeds,nonSeeds) = P;
 Ptotv(seeds,seeds) = eye(numel(seeds));
-corr = lapjv(-Ptotv, scale);%YiCaoHungarian(-P);%
+if topK % if we want topK, why project to permutation matrix?
+    corr = Ptotv;
+else
+    corr = lapjv(-Ptotv, scale);%YiCaoHungarian(-P);%
+end
 

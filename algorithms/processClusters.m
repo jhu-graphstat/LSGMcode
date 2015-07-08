@@ -59,28 +59,7 @@ for i=1:numclust
     elseif (nPieceA > 1000 || nPieceB > 1000)
         warning('A cluster contains more than 100- nodes: expect performance decrease')
     end
-    
-    % If the number of vertices from each graph are not equal in the
-    % cluster, add dummy vertices for the smaller graph
-    if nPieceA < nPieceB
-        % To handle matching dummy vertices, we turn true nonedges in the
-        % adjacency matrices into -1's
-        pieceA = 2*pieceA - ones(nPieceA);
-        pieceB = 2*pieceB - ones(nPieceB);
-        diff = nPieceB - nPieceA;
-        Z12 = zeros(nPieceA, diff);
-        Z22 = zeros(diff);
-        pieceA = [pieceA, Z12; Z12', Z22]; % dummy vertices are disconnected
-    elseif nPieceA > nPieceB
-        % To handle matching dummy vertices, we turn true nonedges in the
-        % adjacency matrices into -1's
-        pieceA = 2*pieceA - ones(nPieceA);
-        pieceB = 2*pieceB - ones(nPieceB);
-        diff = nPieceA - nPieceB;
-        Z12 = zeros(nPieceB, diff);
-        Z22 = zeros(diff);
-        pieceB = [pieceB, Z12; Z12', Z22]; % dummy vertices are disconnected
-    end
+
     
     pieceA_{i} = pieceA;
     pieceB_{i} = pieceB;

@@ -146,8 +146,6 @@ for i = 1:numclust
 	% load subgraph adjacency matrix
 	gA = gA_{i};
 	gB = gB_{i};
-	pieceA = pieceA_{i};
-	pieceB = pieceB_{i};
 	
 
 	% if either graph is empty 
@@ -155,86 +153,24 @@ for i = 1:numclust
 		continue;
     end
     
+    [pieceA, pieceB] = addDummyNodes(pieceA_{i}, pieceB_{i});
+    
     ngA = length(gA); % gA and gB can be different sizes!
     ngB = length(gB);
-	
-    % perform graph match
-	%if (ngA > max_clust_size) || (ngB > max_clust_size)
-    if false
-		startr = tic;
-%		'recurse'
-		% cluster too large, match recursively
-		[ord ii] = BigGMr( pieceA, pieceB, s, numdim, max_clust_size, embedAlg, clustAlg, graphMatchAlg, topK);
-	    ii = ii(s+1:end,:);
-	    
-        if (topK == false)
-            ord = ord(s+1:end) -s;
-        end
-		time_r = toc(startr);
-		fprintf('recursion time: %f\n', time_r);
-        % rmpath at the end of BigGMr removes the path globally: we need to add it again
-        %addpath algorithms/ 
-	else
+
 %		'cluster'
 
-    	% select seeds for SGM
-    	seedsA = pieceA(1:s, s+1:end);
-    	seedsB = pieceB(1:s, s+1:end);
-    	seeds = activeSeedSelection(seedsA, seedsB, s_max);
-        %{
-    	avgdegA = mean(seedsA,2);
-    	avgdegB = mean(seedsB,2);
-    	seedcans = 1:s;
-    	% compute first seed
-		[val, ind] = min(abs(avgdegA(seedcans) -.5) +...
-						 abs(avgdegB(seedcans) -.5));
-    	
-    	seeds = zeros(1,s_max);
-    	seeds(1) = ind;
-    	
-    	% set of remaining seed candidates
-		seedcans = setdiff(seedcans, ind);
-%    	pA = seedsA(ind,:)/2;
-%    	pB = seedsB(ind,:)/2;
-		p = [seedsA(ind,:), seedsB(ind,:)]/2;
-    	for seed = 2:s_max
-    		temp = repmat(p, [length(seedcans),1]);
-    		p_ = [seedsA(seedcans,:), seedsB(seedcans,:)]/seed+temp;
-    		p_1 = 1-p_;
-    		temp = p_.*log(p_) +p_1.*log(p_1);
-    		temp(find(isnan(temp))) = 0;
-    		H = -sum(temp,2);
-    	
-    		[val, ind] = max(H);
-    		p = p*seed/(seed+1);
-    		
-%			[val, ind] = min(abs(avgdegA(seedcans) -.5) +...
-%							 abs(avgdegB(seedcans) -.5));
-						 
-%			[val, ind] = min(abs(avgdegA(seedcans) -.5 +penaltyA) +...
-%							 abs(avgdegB(seedcans) -.5 +penaltyB));
-			seeds(seed) = seedcans(ind);
-			seedcans = seedcans([1:ind-1, ind+1:end]);
-		end
-%		seeds = ind(1:num_seeds);
-        %}
-		ind = [seeds, s+1:length(pieceA)];
+    % select seeds for SGM
+    seedsA = pieceA(1:s, s+1:end);
+    seedsB = pieceB(1:s, s+1:end);
+    seeds = activeSeedSelection(seedsA, seedsB, s_max);
+   
+    ind = [seeds, s+1:length(pieceA)];
 
-
-%		% select seeds from the same cluster
-%		%  and randomly select remaining seeds from other clusters
-%		inds = zeros(s_max+size(pieceA,1)-s,1);
-%		n1 = min(sum(IDXs==i),s_max);
-%		inds(1:s_max) = [randsample( find(IDXs==i)', n1 ) , randsample(find(IDXs~=i)', s_max-n1) ];
-%		% add remaining indices
-%		inds(s_max+1:end) = [ s+1:size(pieceA,1)];
-%		temp = zeros(s+sumn,2);
-		
-		ord = graphMatchAlg(pieceA(ind, ind), pieceB(ind, ind), s_max, topK);
-        if (topK == false)
-            ord = ord(s_max+1:end)-s_max;
-        end
-	end
+    ord = graphMatchAlg(pieceA(ind, ind), pieceB(ind, ind), s_max, topK);
+    if (topK == false)
+        ord = ord(s_max+1:end)-s_max;
+    end
 	
 	% save cluster labels
 	temp = zeros(s+sumn,2);

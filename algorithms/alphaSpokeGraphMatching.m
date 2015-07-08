@@ -59,10 +59,11 @@ averageP = zeros(totv);
 if (strcmp(center, 'bari'))
     centerMatrix = ones(n)/n;
 elseif (strcmp(center, 'convex'))
-    A22=A(nonSeeds,nonSeeds);
-    B22=B(nonSeeds,nonSeeds);
-    % This function doesn't use seeds correctly, so give it no seeds
-    [~,centerMatrix]=relaxed_normAPPB_FW_seeds(A22,B22,0);
+    %A22=A(nonSeeds,nonSeeds);
+    %B22=B(nonSeeds,nonSeeds);
+    
+    [~,centerMatrix]=relaxed_normAPPB_FW_seeds(A,B,s, true);
+    centerMatrix = centerMatrix(nonSeeds, nonSeeds); % only use nonseeds
 else
     centerMatrix = ones(n)/n;
 end
@@ -70,10 +71,14 @@ end
 
 parfor i = 1:numrestarts
     init = alphaSpokeInit(n, alpha, centerMatrix);
-    [corr, ~] = graphMatchAlg(A, B, seeds, topK, init);
-    disp(sprintf('Finished matching iteratio %d', i));
-    P = id(corr,:);
+    if topK
+        [P, ~] = graphMatchAlg(A, B, seeds, topK, init);
+    else
+        [corr, ~] = graphMatchAlg(A, B, seeds, topK, init);
+        P = id(corr,:);
+    end
     averageP = averageP + P;
+    fprintf('Finished matching iteratio %d \n', i);
 end
 prob = averageP/numrestarts;
 
