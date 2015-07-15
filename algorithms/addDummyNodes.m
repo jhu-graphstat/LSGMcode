@@ -23,5 +23,8 @@ function [A, B] = addDummyNodes(pieceA, pieceB)
         Z12 = zeros(nPieceB, diff);
         Z22 = zeros(diff);
         B = [B, Z12; Z12', Z22]; % dummy vertices are disconnected
+    else
+        A = pieceA;
+        B = pieceB;
     end
 end
